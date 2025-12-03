@@ -224,6 +224,40 @@ models:
       - name: us_curve_regime
         description: US yield curve regime based on 10Y-3Y spread
 
+      # =====================================================
+      # TARGET VARIABLES (Y) for ML Prediction
+      # =====================================================
+      
+      # Forward returns (raw)
+      - name: fwd_return_3m
+        description: >
+          Forward 3-month return (TARGET for ML). 
+          Calculated as (price_in_63_days - price_today) / price_today.
+          NULL for recent dates where future data not yet available.
+      - name: fwd_return_6m
+        description: >
+          Forward 6-month return (TARGET for ML).
+          Calculated as (price_in_126_days - price_today) / price_today.
+      - name: fwd_return_12m
+        description: >
+          Forward 12-month return (TARGET for ML).
+          Calculated as (price_in_252_days - price_today) / price_today.
+      
+      # Forward excess returns vs Euribor 3M benchmark
+      - name: fwd_excess_return_3m
+        description: >
+          Forward 3-month EXCESS return vs Euribor 3M (TARGET for ML).
+          Calculated as fwd_return_3m - (euribor_3m * 0.25).
+          Positive = outperformed risk-free rate.
+      - name: fwd_excess_return_6m
+        description: >
+          Forward 6-month EXCESS return vs Euribor 3M (TARGET for ML).
+          Calculated as fwd_return_6m - (euribor_3m * 0.5).
+      - name: fwd_excess_return_12m
+        description: >
+          Forward 12-month EXCESS return vs Euribor 3M (TARGET for ML).
+          Calculated as fwd_return_12m - (euribor_3m * 1.0).
+
 seeds:
   - name: etf_descriptions
     description: >

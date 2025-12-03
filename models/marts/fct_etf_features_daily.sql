@@ -37,7 +37,7 @@
 */
 
 -- Price features (this is the BASE - drives the fact table)
-with prices as (
+with prices_base as (
 
     select
         price_date,
@@ -54,6 +54,47 @@ with prices as (
         volatility_21d,
         volatility_63d
     from {{ ref('int_prices__etf_daily') }}
+
+),
+
+-- Calculate forward returns (TARGET VARIABLES for ML)
+prices as (
+
+    select
+        price_date,
+        symbol,
+        close_price,
+        adjusted_close,
+        volume,
+        return_1d,
+        return_1w,
+        return_1m,
+        return_3m,
+        return_6m,
+        return_12m,
+        volatility_21d,
+        volatility_63d,
+        
+        -- Forward returns (look-ahead for ML targets)
+        -- 3-month forward return (~63 trading days)
+        safe_divide(
+            lead(adjusted_close, 63) over (partition by symbol order by price_date) - adjusted_close,
+            adjusted_close
+        ) as fwd_return_3m,
+        
+        -- 6-month forward return (~126 trading days)
+        safe_divide(
+            lead(adjusted_close, 126) over (partition by symbol order by price_date) - adjusted_close,
+            adjusted_close
+        ) as fwd_return_6m,
+        
+        -- 12-month forward return (~252 trading days)
+        safe_divide(
+            lead(adjusted_close, 252) over (partition by symbol order by price_date) - adjusted_close,
+            adjusted_close
+        ) as fwd_return_12m
+        
+    from prices_base
 
 ),
 
@@ -375,7 +416,29 @@ final as (
             when (g.us_10y - g.us_3y) < 0.25 then 'FLAT'
             when (g.us_10y - g.us_3y) < 0.75 then 'NORMAL'
             else 'STEEP'
-        end as us_curve_regime
+        end as us_curve_regime,
+        
+        -- =====================================================
+        -- TARGET VARIABLES (Y) for ML - Forward Returns
+        -- =====================================================
+        
+        -- Forward returns (raw)
+        p.fwd_return_3m,
+        p.fwd_return_6m,
+        p.fwd_return_12m,
+        
+        -- Forward EXCESS returns vs Euribor 3M benchmark
+        -- Euribor is annual rate in %, convert to decimal and scale for period
+        -- fwd_excess = fwd_return - (euribor_3m / 100 * period_in_years)
+        
+        -- 3-month excess return (0.25 years)
+        p.fwd_return_3m - (m.euribor_3m / 100.0 * 0.25) as fwd_excess_return_3m,
+        
+        -- 6-month excess return (0.5 years)
+        p.fwd_return_6m - (m.euribor_3m / 100.0 * 0.5) as fwd_excess_return_6m,
+        
+        -- 12-month excess return (1 year)
+        p.fwd_return_12m - (m.euribor_3m / 100.0 * 1.0) as fwd_excess_return_12m
 
     from prices p
     -- LEFT JOIN - prices drive the table
