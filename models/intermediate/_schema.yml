@@ -1,0 +1,222 @@
+version: 2
+
+models:
+  - name: int_prices__etf_daily
+    description: >
+      Daily price data for ETFs in our universe with return and momentum features.
+      Includes 1d/1w/1m/3m/6m/12m returns and rolling volatility measures.
+    columns:
+      - name: price_date
+        description: Trading date
+        tests:
+          - not_null
+      - name: symbol
+        description: ETF ticker symbol
+        tests:
+          - not_null
+      - name: close_price
+        description: Daily closing price
+      - name: adjusted_close
+        description: Split and dividend adjusted closing price
+      - name: volume
+        description: Daily trading volume
+      - name: return_1d
+        description: 1-day return
+      - name: return_1w
+        description: 1-week (5-day) return
+      - name: return_1m
+        description: 1-month (21-day) return
+      - name: return_3m
+        description: 3-month (63-day) return
+      - name: return_6m
+        description: 6-month (126-day) return
+      - name: return_12m
+        description: 12-month (252-day) return
+      - name: volatility_21d
+        description: Rolling 21-day standard deviation of daily returns
+      - name: volatility_63d
+        description: Rolling 63-day standard deviation of daily returns
+
+  - name: int_prices__indices_daily
+    description: >
+      Daily index prices for market risk proxies.
+      Includes VIX, DXY, major equity indices for regime detection.
+    columns:
+      - name: price_date
+        description: Trading date
+      - name: symbol
+        description: Index symbol (e.g., VIX.INDX, GSPC.INDX)
+      - name: close_price
+        description: Index closing value
+      - name: return_1d
+        description: Daily return
+      - name: change_1w
+        description: Weekly change
+
+  - name: int_dividends__etf
+    description: >
+      Normalized dividend payments for ETFs in our universe.
+      Used for trailing yield calculations.
+    columns:
+      - name: payment_date
+        description: Dividend payment date
+      - name: symbol
+        description: ETF ticker symbol
+      - name: dividend_per_share
+        description: Dividend amount per share
+      - name: period
+        description: Dividend period (quarterly, monthly, etc.)
+
+  - name: int_dividends__daily_sum
+    description: >
+      Daily aggregated dividend payments per symbol.
+      Simplifies rolling window calculations.
+    columns:
+      - name: dividend_date
+        description: Date of dividend payment
+      - name: symbol
+        description: ETF ticker symbol
+      - name: div_per_share_day
+        description: Total dividends paid on this date
+
+  - name: int_yield__etf_daily
+    description: >
+      Daily ETF yield features based on trailing dividend payments.
+      Provides TTM yield and annualized 3M/6M yields.
+    columns:
+      - name: price_date
+        description: Trading date
+      - name: symbol
+        description: ETF ticker symbol
+      - name: close_price
+        description: Closing price for yield calculation
+      - name: div_12m
+        description: Trailing 12-month dividend sum
+      - name: div_6m
+        description: Trailing 6-month dividend sum
+      - name: div_3m
+        description: Trailing 3-month dividend sum
+      - name: yield_12m_ttm
+        description: Trailing 12-month yield (div_12m / price)
+      - name: yield_6m_ann
+        description: Annualized 6-month yield
+      - name: yield_3m_ann
+        description: Annualized 3-month yield
+
+  - name: int_yields__gov_bonds_daily
+    description: >
+      Government bond yields for curve construction.
+      Includes US Treasury, German Bund, UK Gilt, and European periphery.
+    columns:
+      - name: price_date
+        description: Trading date
+      - name: symbol
+        description: Bond symbol (e.g., US10Y.GBOND, DE10Y.GBOND)
+      - name: yield
+        description: Bond yield (in percentage)
+      - name: yield_change_1d_bps
+        description: Daily yield change in basis points
+      - name: yield_change_1w_bps
+        description: Weekly yield change in basis points
+
+  - name: int_macro__fred_daily
+    description: >
+      FRED macro series filtered to key US indicators.
+      Includes CPI, policy rates, credit spreads, and economic indicators.
+    columns:
+      - name: observation_date
+        description: Observation date
+      - name: series_id
+        description: FRED series identifier
+      - name: value
+        description: Observation value
+
+  - name: int_macro__cpi_us_yoy
+    description: >
+      US CPI Year-over-Year inflation rate.
+      Calculated from CPIAUCSL index.
+    columns:
+      - name: observation_date
+        description: Observation date (monthly)
+      - name: cpi_index
+        description: CPI index value
+      - name: cpi_us_yoy
+        description: Year-over-year CPI change (percentage)
+
+  - name: int_macro__ecb_daily
+    description: >
+      ECB macro series filtered to key European indicators.
+      Includes HICP inflation and Euribor rates.
+    columns:
+      - name: observation_date
+        description: Observation date
+      - name: series_key
+        description: ECB series key
+      - name: value
+        description: Observation value
+      - name: series_name
+        description: Friendly series name
+
+  - name: int_macro__cpi_eu_yoy
+    description: >
+      EU HICP Year-over-Year inflation rate from ECB.
+    columns:
+      - name: observation_date
+        description: Observation date (monthly)
+      - name: cpi_eu_yoy
+        description: EU HICP YoY (percentage)
+
+  - name: int_macro__euribor
+    description: >
+      Euribor rates pivoted by tenor.
+    columns:
+      - name: observation_date
+        description: Observation date
+      - name: euribor_3m
+        description: 3-month Euribor rate
+      - name: euribor_6m
+        description: 6-month Euribor rate
+      - name: euribor_12m
+        description: 12-month Euribor rate
+
+  - name: int_macro__rates_us
+    description: >
+      US policy rates from FRED.
+    columns:
+      - name: observation_date
+        description: Observation date
+      - name: effr
+        description: Effective Federal Funds Rate
+      - name: sofr
+        description: Secured Overnight Financing Rate
+      - name: fed_funds_rate
+        description: Federal Funds Target Rate
+
+  - name: int_macro__credit_spreads
+    description: >
+      Credit spread indicators from FRED.
+      Includes HY OAS, IG OAS, and Treasury curve spreads.
+    columns:
+      - name: observation_date
+        description: Observation date
+      - name: hy_oas_spread
+        description: US High Yield Option-Adjusted Spread
+      - name: ig_oas_spread
+        description: US Investment Grade OAS
+      - name: us_10y2y_spread
+        description: 10Y-2Y Treasury spread
+      - name: us_10y3m_spread
+        description: 10Y-3M Treasury spread
+      - name: ted_spread
+        description: TED spread (3M LIBOR - 3M T-bill)
+
+  - name: int_spine__date_symbol
+    description: >
+      Complete date-symbol grid for the feature table.
+      Ensures no gaps in the final feature table.
+    columns:
+      - name: date
+        description: Calendar date
+      - name: symbol
+        description: ETF ticker symbol
+

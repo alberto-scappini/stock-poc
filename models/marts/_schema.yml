@@ -1,0 +1,236 @@
+version: 2
+
+models:
+  - name: dim_symbol
+    description: >
+      Dimension table for ETF/Symbol universe with classification and detailed descriptions.
+      
+      Contains symbol identification, classification labels, and rich descriptions
+      sourced from ETF provider documentation. Use this table to understand:
+      - What each ETF invests in (asset class, duration, credit quality)
+      - Investment objective and benchmark index
+      - Geographic focus and sub-asset class
+      
+      Join to fct_etf_features_daily on symbol for complete analysis.
+    columns:
+      - name: symbol
+        description: Ticker symbol with exchange suffix (e.g., TLT.US, IEAC.LSE)
+        tests:
+          - unique
+          - not_null
+      - name: code
+        description: Base ticker code without exchange suffix
+      - name: isin
+        description: ISIN identifier
+      - name: name
+        description: Full name of the ETF
+      - name: asset_type
+        description: Asset type (filtered to ETF)
+      - name: country
+        description: Country of domicile
+      - name: currency
+        description: Trading currency
+      - name: exchange
+        description: Exchange where traded
+      - name: etf_group
+        description: Classification group (IG_BOND, HY_BOND, TREASURY, AGG_BOND, OTHER_BOND, EQUITY, OTHER)
+      - name: is_bond_etf
+        description: Boolean flag indicating if this is a fixed income ETF
+      - name: region
+        description: Geographic region (US, UK, EU, OTHER)
+      - name: description
+        description: Detailed ETF description from seed file
+      - name: investment_objective
+        description: Official investment objective statement
+      - name: asset_class
+        description: Primary asset class (FIXED_INCOME, EQUITY)
+      - name: sub_asset_class
+        description: Sub-asset class categorization
+      - name: duration_category
+        description: Duration category for fixed income
+      - name: credit_quality
+        description: Credit quality category
+      - name: geographic_focus
+        description: Geographic focus
+      - name: benchmark_index
+        description: Benchmark index tracked
+
+  - name: fct_etf_features_daily
+    description: >
+      Final feature table for ETF/Bond excess return prediction ML model.
+      
+      Grain: one row per (feature_date, symbol)
+      
+      IMPORTANT: 
+      - This table is DRIVEN BY PRICES, not dim_symbol
+      - All symbols with price data are included, even if metadata is missing
+      - Use has_symbol_metadata flag to filter or check data quality
+      - Join to dim_symbol for full symbol attributes
+      
+      Available data sources:
+      - Indices: VIX, DXY, EURUSD, GSPC (S&P500), SX5E (EuroStoxx50)
+      - Gov Bonds: US(10Y,5Y,3Y,1Y), DE(10Y,5Y,3Y,1Y), IT10Y, ES10Y, FR10Y
+      - Note: No UK bonds, no US2Y/US30Y available
+    columns:
+      # Keys
+      - name: feature_date
+        description: Date of the feature observation
+        tests:
+          - not_null
+      - name: symbol
+        description: ETF ticker symbol (join to dim_symbol for metadata)
+        tests:
+          - not_null
+      - name: has_symbol_metadata
+        description: Boolean flag - FALSE means symbol has no metadata in dim_symbol
+
+      # Price features
+      - name: close_price
+        description: Daily closing price
+      - name: adjusted_close
+        description: Split/dividend adjusted close
+      - name: volume
+        description: Daily trading volume
+      - name: return_1d
+        description: 1-day return
+      - name: return_1w
+        description: 1-week return
+      - name: return_1m
+        description: 1-month return
+      - name: return_3m
+        description: 3-month return (momentum signal)
+      - name: return_6m
+        description: 6-month return (momentum signal)
+      - name: return_12m
+        description: 12-month return (momentum signal)
+      - name: volatility_21d
+        description: Rolling 21-day volatility
+      - name: volatility_63d
+        description: Rolling 63-day volatility
+
+      # Dividend yield features
+      - name: yield_12m_ttm
+        description: Trailing 12-month dividend yield
+      - name: yield_6m_ann
+        description: Annualized 6-month dividend yield
+      - name: yield_3m_ann
+        description: Annualized 3-month dividend yield
+
+      # US Government bond yields
+      - name: us_10y
+        description: US 10-year Treasury yield
+      - name: us_5y
+        description: US 5-year Treasury yield
+      - name: us_3y
+        description: US 3-year Treasury yield
+      - name: us_1y
+        description: US 1-year Treasury yield
+
+      # German Bund yields
+      - name: de_10y
+        description: German 10-year Bund yield
+      - name: de_5y
+        description: German 5-year yield
+      - name: de_3y
+        description: German 3-year yield
+      - name: de_1y
+        description: German 1-year yield
+
+      # European periphery yields
+      - name: it_10y
+        description: Italy 10-year yield
+      - name: es_10y
+        description: Spain 10-year yield
+      - name: fr_10y
+        description: France 10-year yield
+
+      # Emerging market yields
+      - name: br_10y
+        description: Brazil 10-year yield (EM risk sentiment)
+
+      # Yield curve slopes - US
+      - name: us_slope_10y3y
+        description: US 10Y-3Y yield spread (curve slope)
+      - name: us_slope_10y1y
+        description: US 10Y-1Y yield spread
+      - name: us_slope_5y1y
+        description: US 5Y-1Y yield spread (short end)
+
+      # Yield curve slopes - Germany
+      - name: de_slope_10y3y
+        description: German 10Y-3Y yield spread
+      - name: de_slope_10y1y
+        description: German 10Y-1Y yield spread
+
+      # European sovereign spreads
+      - name: italy_spread
+        description: Italy-Germany 10Y spread (peripheral risk)
+      - name: spain_spread
+        description: Spain-Germany 10Y spread
+      - name: france_spread
+        description: France-Germany 10Y spread
+
+      # EM spreads
+      - name: brazil_spread_vs_us
+        description: Brazil-US 10Y spread (EM risk)
+
+      # Transatlantic spread
+      - name: us_de_spread
+        description: US-Germany 10Y spread
+
+      # Risk indicators
+      - name: vix
+        description: VIX volatility index
+      - name: dxy
+        description: US Dollar Index
+      - name: eurusd
+        description: EUR/USD exchange rate
+      - name: sp500
+        description: S&P 500 index level
+      - name: eurostoxx50
+        description: Euro Stoxx 50 index level
+      - name: sp500_return_1d
+        description: S&P 500 daily return
+      - name: eurostoxx50_return_1d
+        description: Euro Stoxx 50 daily return
+      - name: vix_return_1d
+        description: VIX daily change (volatility of volatility)
+
+      # Macro features
+      - name: cpi_us_yoy
+        description: US CPI year-over-year (inflation)
+      - name: cpi_eu_yoy
+        description: EU HICP year-over-year (inflation)
+      - name: effr
+        description: Effective Federal Funds Rate
+      - name: sofr
+        description: Secured Overnight Financing Rate
+      - name: euribor_3m
+        description: 3-month Euribor rate
+
+      # Derived ML features
+      - name: yield_spread_vs_benchmark
+        description: ETF yield minus benchmark gov bond yield (for bond ETFs)
+      - name: us_real_yield_10y
+        description: US 10Y yield minus US CPI (real yield)
+      - name: de_real_yield_10y
+        description: German 10Y yield minus EU CPI (real yield)
+      - name: policy_vs_10y_spread
+        description: Fed Funds rate minus US 10Y (policy stance)
+      - name: sharpe_3m_proxy
+        description: 3M return divided by 63d volatility
+      - name: vix_regime
+        description: VIX regime category (LOW, NORMAL, ELEVATED, HIGH)
+      - name: us_curve_regime
+        description: US yield curve regime based on 10Y-3Y spread
+
+seeds:
+  - name: etf_descriptions
+    description: >
+      Seed file containing detailed ETF descriptions and classification data.
+    columns:
+      - name: symbol
+        description: ETF ticker symbol
+        tests:
+          - unique
+          - not_null
