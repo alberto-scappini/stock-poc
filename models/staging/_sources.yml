@@ -1,0 +1,323 @@
+version: 2
+
+sources:
+  - name: raw
+    database: stock-poc-479411
+    schema: raw
+    description: Raw data ingested via Airbyte from various financial data sources
+
+    tables:
+      - name: div_eod_div
+        description: End of day dividend data
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: date
+            description: Dividend date
+          - name: value
+            description: Dividend value (adjusted)
+          - name: period
+            description: Dividend period
+          - name: symbol
+            description: Stock symbol
+          - name: currency
+            description: Currency of the dividend
+          - name: recordDate
+            description: Record date for dividend eligibility
+          - name: paymentDate
+            description: Payment date of the dividend
+          - name: declarationDate
+            description: Declaration date of the dividend
+          - name: unadjustedValue
+            description: Unadjusted dividend value
+
+      - name: ecb_series_observations
+        description: European Central Bank series observations data
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: KEY
+            description: Series key identifier
+          - name: FREQ
+            description: Frequency of observations
+          - name: UNIT
+            description: Unit of measurement
+          - name: TITLE
+            description: Series title
+          - name: BREAKS
+            description: Break information
+          - name: OBS_COM
+            description: Observation comment
+          - name: PUBL_MU
+            description: Publication monetary union flag
+          - name: COVERAGE
+            description: Coverage information
+          - name: DECIMALS
+            description: Number of decimals
+          - name: DISS_ORG
+            description: Dissemination organization
+          - name: ICP_ITEM
+            description: ICP item code
+          - name: OBS_CONF
+            description: Observation confidentiality
+          - name: PUBL_ECB
+            description: Publication ECB flag
+          - name: REF_AREA
+            description: Reference area
+          - name: DATA_COMP
+            description: Data compilation method
+          - name: OBS_VALUE
+            description: Observation value
+          - name: UNIT_MULT
+            description: Unit multiplier
+          - name: ADJUSTMENT
+            description: Adjustment type
+          - name: COLLECTION
+            description: Collection method
+          - name: ICP_SUFFIX
+            description: ICP suffix
+          - name: OBS_STATUS
+            description: Observation status
+          - name: series_key
+            description: Series key for partitioning
+          - name: COMPILATION
+            description: Compilation information
+          - name: DOM_SER_IDS
+            description: Domestic series identifiers
+          - name: PUBL_PUBLIC
+            description: Publication public flag
+          - name: TIME_FORMAT
+            description: Time format
+          - name: TIME_PERIOD
+            description: Time period of observation
+          - name: TITLE_COMPL
+            description: Complete title
+          - name: COMPILING_ORG
+            description: Compiling organization
+          - name: OBS_PRE_BREAK
+            description: Observation pre-break value
+          - name: SOURCE_AGENCY
+            description: Source agency
+          - name: STS_INSTITUTION
+            description: Statistics institution
+          - name: UNIT_INDEX_BASE
+            description: Unit index base
+
+      - name: fred_series_observations
+        description: Federal Reserve Economic Data series observations
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: date
+            description: Observation date
+          - name: value
+            description: Observation value
+          - name: series_id
+            description: FRED series identifier
+          - name: realtime_end
+            description: Real-time period end date
+          - name: realtime_start
+            description: Real-time period start date
+
+      - name: eod_symbols_metadata
+        description: End of day symbols metadata
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: Code
+            description: Symbol code
+          - name: Isin
+            description: ISIN identifier
+          - name: Name
+            description: Symbol name
+          - name: Type
+            description: Asset type
+          - name: Country
+            description: Country of origin
+          - name: Currency
+            description: Trading currency
+          - name: Exchange
+            description: Exchange where traded
+
+      - name: supported_crypto_currencies
+        description: Supported cryptocurrency symbols
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: Code
+            description: Cryptocurrency code
+          - name: Name
+            description: Cryptocurrency name
+          - name: Type
+            description: Asset type
+          - name: Country
+            description: Country (typically null for crypto)
+          - name: Currency
+            description: Quote currency
+          - name: Exchange
+            description: Exchange identifier
+
+      - name: indx_eod_prices
+        description: End of day prices for indices
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: low
+            description: Daily low price
+          - name: date
+            description: Trading date
+          - name: high
+            description: Daily high price
+          - name: open
+            description: Opening price
+          - name: close
+            description: Closing price
+          - name: symbol
+            description: Index symbol
+          - name: volume
+            description: Trading volume
+          - name: adjusted_close
+            description: Adjusted closing price
+
+      - name: gbond_eod_prices
+        description: End of day prices for government bonds
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: low
+            description: Daily low price
+          - name: date
+            description: Trading date
+          - name: high
+            description: Daily high price
+          - name: open
+            description: Opening price
+          - name: close
+            description: Closing price
+          - name: symbol
+            description: Bond symbol
+          - name: volume
+            description: Trading volume
+          - name: adjusted_close
+            description: Adjusted closing price
+
+      - name: supported_tickers_all_assets
+        description: All supported ticker symbols across asset classes
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: Code
+            description: Ticker code
+          - name: Isin
+            description: ISIN identifier
+          - name: Name
+            description: Asset name
+          - name: Type
+            description: Asset type
+          - name: Country
+            description: Country of origin
+          - name: Currency
+            description: Trading currency
+          - name: Exchange
+            description: Exchange where traded
+
+      - name: eod_prices
+        description: End of day prices for stocks
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: low
+            description: Daily low price
+          - name: date
+            description: Trading date
+          - name: high
+            description: Daily high price
+          - name: open
+            description: Opening price
+          - name: close
+            description: Closing price
+          - name: symbol
+            description: Stock symbol
+          - name: volume
+            description: Trading volume
+          - name: adjusted_close
+            description: Adjusted closing price
+
+      - name: id_mapping_metadata
+        description: Identifier mapping metadata across different ID systems
+        columns:
+          - name: _airbyte_raw_id
+            description: Airbyte unique identifier for the raw record
+          - name: _airbyte_extracted_at
+            description: Timestamp when Airbyte extracted the record
+          - name: _airbyte_meta
+            description: Airbyte metadata JSON
+          - name: _airbyte_generation_id
+            description: Airbyte generation identifier
+          - name: cik
+            description: SEC Central Index Key
+          - name: lei
+            description: Legal Entity Identifier
+          - name: figi
+            description: Financial Instrument Global Identifier
+          - name: isin
+            description: International Securities Identification Number
+          - name: cusip
+            description: CUSIP identifier
+          - name: symbol
+            description: Ticker symbol
+

@@ -1,0 +1,257 @@
+version: 2
+
+models:
+  - name: stg_div_eod_div
+    description: Staged dividend end of day data with cleaned column names and proper data types
+    columns:
+      - name: dividend_id
+        description: Unique identifier for the dividend record (from Airbyte)
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        description: Stock ticker symbol
+      - name: dividend_date
+        description: Date of the dividend
+      - name: dividend_value
+        description: Adjusted dividend value
+      - name: unadjusted_value
+        description: Unadjusted dividend value
+      - name: currency
+        description: Currency of the dividend payment
+      - name: period
+        description: Dividend period (e.g., quarterly, annual)
+      - name: record_date
+        description: Record date for dividend eligibility
+      - name: payment_date
+        description: Payment date of the dividend
+      - name: declaration_date
+        description: Declaration date of the dividend
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_ecb_series_observations
+    description: Staged European Central Bank series observations with cleaned column names
+    columns:
+      - name: observation_id
+        description: Unique identifier for the observation record
+        tests:
+          - unique
+          - not_null
+      - name: series_key
+        description: Series key identifier for partitioning
+      - name: time_period
+        description: Time period of the observation
+      - name: observation_value
+        description: The observed value
+      - name: observation_status
+        description: Status of the observation
+      - name: frequency
+        description: Frequency of observations
+      - name: unit
+        description: Unit of measurement
+      - name: title
+        description: Series title
+      - name: reference_area
+        description: Reference area (country/region)
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_fred_series_observations
+    description: Staged Federal Reserve Economic Data series observations
+    columns:
+      - name: observation_id
+        description: Unique identifier for the observation record
+        tests:
+          - unique
+          - not_null
+      - name: series_id
+        description: FRED series identifier
+      - name: observation_date
+        description: Date of the observation
+      - name: observation_value
+        description: The observed value
+      - name: realtime_start
+        description: Real-time period start date
+      - name: realtime_end
+        description: Real-time period end date
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_eod_symbols_metadata
+    description: Staged end of day symbols metadata
+    columns:
+      - name: symbol_id
+        description: Unique identifier for the symbol record
+        tests:
+          - unique
+          - not_null
+      - name: code
+        description: Symbol code
+      - name: isin
+        description: ISIN identifier
+      - name: name
+        description: Symbol name
+      - name: asset_type
+        description: Type of asset
+      - name: country
+        description: Country of origin
+      - name: currency
+        description: Trading currency
+      - name: exchange
+        description: Exchange where traded
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_supported_crypto_currencies
+    description: Staged supported cryptocurrency symbols
+    columns:
+      - name: crypto_id
+        description: Unique identifier for the crypto record
+        tests:
+          - unique
+          - not_null
+      - name: code
+        description: Cryptocurrency code
+      - name: name
+        description: Cryptocurrency name
+      - name: asset_type
+        description: Type of asset
+      - name: country
+        description: Country (typically null for crypto)
+      - name: currency
+        description: Quote currency
+      - name: exchange
+        description: Exchange identifier
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_indx_eod_prices
+    description: Staged end of day prices for indices
+    columns:
+      - name: price_id
+        description: Unique identifier for the price record
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        description: Index symbol
+      - name: price_date
+        description: Trading date
+      - name: open_price
+        description: Opening price
+      - name: high_price
+        description: Daily high price
+      - name: low_price
+        description: Daily low price
+      - name: close_price
+        description: Closing price
+      - name: adjusted_close
+        description: Adjusted closing price
+      - name: volume
+        description: Trading volume
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_gbond_eod_prices
+    description: Staged end of day prices for government bonds
+    columns:
+      - name: price_id
+        description: Unique identifier for the price record
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        description: Bond symbol
+      - name: price_date
+        description: Trading date
+      - name: open_price
+        description: Opening price
+      - name: high_price
+        description: Daily high price
+      - name: low_price
+        description: Daily low price
+      - name: close_price
+        description: Closing price
+      - name: adjusted_close
+        description: Adjusted closing price
+      - name: volume
+        description: Trading volume
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_supported_tickers_all_assets
+    description: Staged all supported ticker symbols across asset classes
+    columns:
+      - name: ticker_id
+        description: Unique identifier for the ticker record
+        tests:
+          - unique
+          - not_null
+      - name: code
+        description: Ticker code
+      - name: isin
+        description: ISIN identifier
+      - name: name
+        description: Asset name
+      - name: asset_type
+        description: Type of asset
+      - name: country
+        description: Country of origin
+      - name: currency
+        description: Trading currency
+      - name: exchange
+        description: Exchange where traded
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_eod_prices
+    description: Staged end of day prices for stocks
+    columns:
+      - name: price_id
+        description: Unique identifier for the price record
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        description: Stock symbol
+      - name: price_date
+        description: Trading date
+      - name: open_price
+        description: Opening price
+      - name: high_price
+        description: Daily high price
+      - name: low_price
+        description: Daily low price
+      - name: close_price
+        description: Closing price
+      - name: adjusted_close
+        description: Adjusted closing price
+      - name: volume
+        description: Trading volume
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
+  - name: stg_id_mapping_metadata
+    description: Staged identifier mapping metadata across different ID systems
+    columns:
+      - name: mapping_id
+        description: Unique identifier for the mapping record
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        description: Ticker symbol
+      - name: isin
+        description: International Securities Identification Number
+      - name: cusip
+        description: CUSIP identifier
+      - name: figi
+        description: Financial Instrument Global Identifier
+      - name: lei
+        description: Legal Entity Identifier
+      - name: cik
+        description: SEC Central Index Key
+      - name: extracted_at
+        description: Timestamp when the record was extracted
+
